@@ -39,16 +39,19 @@ The application uses a sharded database to keep the frontend lightweight. To upd
 
 ### 1. Requirements
 - Python 3.x
-- `pandas` library
+
+### 2. Setup & Update
+It is recommended to use a virtual environment:
 
 ```bash
-pip install pandas
-```
+# Create and activate virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
 
-### 2. Run the update script
-The script will download the latest official address list, process it, and generate individual JSON files for each city in the `data/` directory.
+# Install dependencies
+pip install -r requirements.txt
 
-```bash
+# Run the update script
 python3 build_database.py
 ```
 
