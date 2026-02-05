@@ -594,16 +594,37 @@
         });
 
         function validateAndProcess(raw, fileName) {
-            const headIdx = raw.findIndex(r => r[0] && r[0].includes("תאריך"));
-            if (headIdx === -1) return showError("פורמט הקובץ אינו מזוהה.");
-            const dataRows = raw.slice(headIdx + 2).filter(r => r[0] && r[1] && r[2]);
+            // Find the header row by searching for "תאריך" anywhere in the row
+            let headIdx = -1;
+            let dateCol = -1, timeCol = -1, kwhCol = -1;
+
+            for (let i = 0; i < raw.length; i++) {
+                const row = raw[i];
+                const dIdx = row.findIndex(cell => cell && cell.includes("תאריך"));
+                if (dIdx !== -1) {
+                    headIdx = i;
+                    dateCol = dIdx;
+                    // Look for time and consumption columns in the same header row
+                    timeCol = row.findIndex(cell => cell && (cell.includes("מועד") || cell.includes("שעה")));
+                    kwhCol = row.findIndex(cell => cell && (cell.includes("קוט\"ש") || cell.includes("צריכה")));
+                    break;
+                }
+            }
+
+            if (headIdx === -1 || dateCol === -1 || timeCol === -1 || kwhCol === -1) {
+                return showError("פורמט הקובץ אינו מזוהה.");
+            }
+
+            const dataRows = raw.slice(headIdx + 1).filter(r => r[dateCol] && r[timeCol] && r[kwhCol] !== undefined);
             if (dataRows.length === 0) return showError("לא נמצאו נתונים בקובץ.");
+
             const cleanData = dataRows.map(r => ({
-                date: r[0],
-                day: new Date(r[0].split('/').reverse().join('-')).getDay(),
-                hour: parseInt(r[1].split(':')[0]),
-                kwh: parseFloat(r[2])
+                date: r[dateCol],
+                day: new Date(r[dateCol].split('/').reverse().join('-')).getDay(),
+                hour: parseInt(r[timeCol].split(':')[0]),
+                kwh: parseFloat(r[kwhCol]) || 0
             }));
+
             document.getElementById('fileNameDisplay').textContent = fileName;
             document.getElementById('fileNameDisplay').classList.remove('hidden');
             document.getElementById('fileNameDisplay').className = "mt-4 font-bold text-sm px-6 py-2 rounded-full inline-block bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300";
