@@ -66,7 +66,7 @@
         <button id="themeToggle" class="absolute left-0 top-0 p-2 rounded-full bg-white dark:bg-slate-800 shadow-lg border border-slate-200 dark:border-slate-700 hover:scale-110 transition-all">
             <span id="themeIcon">🌙</span>
         </button>
-        <div class="inline-block px-4 py-1.5 mb-4 text-xs font-semibold tracking-wider text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-100 dark:bg-indigo-900/30 rounded-full">מעודכן לינואר 2026</div>
+        <div id="lastUpdated" class="inline-block px-4 py-1.5 mb-4 text-xs font-semibold tracking-wider text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-100 dark:bg-indigo-900/30 rounded-full"></div>
         <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white mb-2 tracking-tight">מחשבון השוואת מחירי חשמל</h1>
     </header>
 
@@ -250,6 +250,11 @@
 
         // --- INIT ---
         async function init() {
+            // Set current date
+            const today = new Date();
+            const dateString = today.toLocaleDateString('he-IL', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            document.getElementById('lastUpdated').textContent = `מעודכן לתאריך ${dateString}`;
+
             try {
                 const plansRes = await fetch('plans.json');
                 if (plansRes.ok) providerPlans = await plansRes.json();
